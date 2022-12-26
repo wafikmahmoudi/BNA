@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="IRIS" version="26" zv="IRIS for UNIX (Ubuntu Server LTS for x86-64 Containers) 2022.2 (Build 368U)" ts="2022-12-26 15:28:23">
+<Project name="EnsExportProduction_2022-12-26 15-28-04_036+0" LastModified="2022-12-26 15:28:23.448913419">
+  <ProjectDescription>Studio Project generated from Production 'HSTESTPKG.FoundationProduction' at 2022-12-26 15:28:04.036 UTC</ProjectDescription>
+  <Items>
+    <ProjectItem name="IPC.XMLFHIRbpl" type="CLS"></ProjectItem>
+    <ProjectItem name="IPC.XMLbioToSDA" type="CLS"></ProjectItem>
+    <ProjectItem name="Settings:HS.FHIR.DTL.Util.HC.SDA3.FHIR.Process.PTD" type="PTD"></ProjectItem>
+    <ProjectItem name="Settings:HS.FHIRServer.Interop.Operation.PTD" type="PTD"></ProjectItem>
+    <ProjectItem name="Settings:SIH.BIO.XML.Fhir.Process.PTD" type="PTD"></ProjectItem>
+    <ProjectItem name="EnsExportNotes.EnsExportProduction_2022-12-26 15-28-04_036+0.PTD" type="PTD"></ProjectItem>
+  </Items>
+</Project>
+
+
+<Class name="IPC.XMLFHIRbpl">
+<Description>
+</Description>
+<Super>Ens.BusinessProcessBPL</Super>
+<TimeChanged>66469,54987.425262594</TimeChanged>
+<TimeCreated>66359,29123.765710801</TimeCreated>
+
+<Storage name="Default">
+<Type>%Storage.Persistent</Type>
+</Storage>
+
+<XData name="BPL">
+<Description>
+BPL Definition</Description>
+<XMLNamespace>http://www.intersystems.com/bpl</XMLNamespace>
+<Data><![CDATA[
+<process language='objectscript' request='Ens.Request' response='Ens.Response' height='2000' width='2000' >
+<context>
+<property name='TStream' type='Ens.StreamContainer' instantiate='0' />
+<property name='test' type='EnsLib.EDI.XML.Document' instantiate='0' />
+<property name='xxl2' type='EnsLib.EDI.XML.Document' instantiate='0' />
+<property name='BStream' type='HS.Message.XMLMessage' instantiate='0' />
+</context>
+<sequence xend='200' yend='1150' >
+<code xpos='200' ypos='250' >
+<![CDATA[ $$$LOGINFO("debut")]]]]><![CDATA[>
+</code>
+<transform class='IPC.XMLbioToSDA' source='request' target='context.TStream' xpos='200' ypos='350' />
+<code xpos='200' ypos='450' >
+<![CDATA[  set tSDA3Object1 = context.TStream
+     Set tQuickStream1 = ##class(HS.SDA3.QuickStream).%New()
+
+    $$$ThrowOnError(tSDA3Object1.XMLExportToStream(.tQuickStream1))
+
+    $$$LOGINFO("tQuickStream1"_tQuickStream1.Read())
+      
+      set xxl3 = ##class(EnsLib.EDI.XML.Document).%New(tQuickStream1)]]]]><![CDATA[>
+</code>
+<call name='patient namespace' target='Patient.output' async='1' xpos='200' ypos='550' disabled="true">
+<request type='EnsLib.EDI.XML.Document' >
+<assign property="callrequest" value="xxl3" action="set" />
+</request>
+<response type='Ens.Response' />
+</call>
+<call name='practionner namespace' target='SDA.Practitionner.Out' async='1' xpos='200' ypos='650' disabled="true">
+<request type='EnsLib.EDI.XML.Document' >
+<assign property="callrequest" value="xxl3" action="set" />
+</request>
+<response type='Ens.Response' />
+</call>
+<call name='clinicData namespace' target='CLINIC.DATA.OUTPUT' async='1' xpos='200' ypos='750' disabled="true">
+<request type='EnsLib.EDI.XML.Document' >
+<assign property="callrequest" value="xxl3" action="set" />
+</request>
+<response type='Ens.Response' />
+</call>
+<code xpos='200' ypos='850' >
+<![CDATA[  set tSDA3Object = context.TStream
+     Set tQuickStream = ##class(HS.SDA3.QuickStream).%New()
+
+    $$$ThrowOnError(tSDA3Object.XMLExportToStream(.tQuickStream))
+
+    $$$LOGINFO("tQuickStream"_tQuickStream.Read())
+
+
+       set pResponsewafik = ##class(HS.Message.XMLMessage).%New()
+       Do pResponsewafik.AdditionalInfo.SetAt(tQuickStream.%Id(),"QuickStreamId")
+           Do pResponsewafik.AdditionalInfo.SetAt(tSDA3Object.Patient.MPIID,"PatientResourceId")
+        //wafik ajout
+         set context.xxl2 = ##class(EnsLib.EDI.XML.Document).%New(tQuickStream)
+
+         //set tSC = ..SendRequestSync("RoutingEnginetest1",xxl2)
+
+    //type 2
+
+    set xx = ##class(Ens.StreamContainer).%New()
+    set xx.Stream = tQuickStream.Read()
+    //set xx.Type = "FC"]]]]><![CDATA[>
+</code>
+<code xpos='200' ypos='950' disabled="true">
+<![CDATA[ $$$LOGINFO(" tstream")
+ $$$LOGINFO(context.TStream)
+ $$$LOGINFO(" Ens.Request")
+ $$$LOGINFO(request)
+ Set context.TStream = request
+  $$$LOGINFO(" tstream")
+ $$$LOGINFO(context.TStream)
+ set pXML=##class(%Stream.GlobalCharacter).%New()
+ do pXML.Write(context.BStream)
+ $$$LOGINFO("SDAAAAAAAAAAA / : ") $$$LOGINFO(" tstream")
+ $$$LOGINFO(context.TStream)
+ $$$LOGINFO(" Ens.Request")
+ $$$LOGINFO(request)
+ Set context.TStream = request
+  $$$LOGINFO(" tstream")
+ $$$LOGINFO(context.TStream)
+ set pXML=##class(%Stream.GlobalCharacter).%New()
+ do pXML.Write(context.BStream)
+ $$$LOGINFO("SDAAAAAAAAAAA / : ")
+ set text = ""
+ do pXML.Rewind()
+ while 'pXML.AtEnd {
+ set text = pXML.Read()
+ }
+ // w text
+ $$$LOGINFO("SDA Stream for sdaaaaaaaaaa is created : "_text)
+   $$$LOGINFO("pResponsewafik : "_tQuickStream.Read())
+ set text = ""
+ do pXML.Rewind()
+ while 'pXML.AtEnd {
+ set text = pXML.Read()
+ }
+ // w text
+ $$$LOGINFO("SDA Stream for sdaaaaaaaaaa is created : "_text)
+   $$$LOGINFO("pResponsewafik : "_tQuickStream.Read())]]]]><![CDATA[>
+</code>
+<call name='sda to fhir' target='HS.FHIR.DTL.Util.HC.SDA3.FHIR.Process' async='1' xpos='200' ypos='1050' >
+<request type='Ens.StreamContainer' >
+<assign property="callrequest" value="pResponsewafik" action="set" />
+</request>
+<response type='Ens.Response' />
+</call>
+</sequence>
+</process>
+]]></Data>
+</XData>
+</Class>
+
+
+<Class name="IPC.XMLbioToSDA">
+<Super>Ens.DataTransformDTL</Super>
+<TimeChanged>66469,55309.127820379</TimeChanged>
+<TimeCreated>66351,55754.718241933</TimeCreated>
+<DependsOn>HS.SDA3.Container</DependsOn>
+
+<Parameter name="IGNOREMISSINGSOURCE">
+<Default>0</Default>
+</Parameter>
+
+<Parameter name="REPORTERRORS">
+<Default>0</Default>
+</Parameter>
+
+<Parameter name="TREATEMPTYREPEATINGFIELDASNULL">
+<Default>0</Default>
+</Parameter>
+
+<XData name="DTL">
+<XMLNamespace>http://www.intersystems.com/dtl</XMLNamespace>
+<Data><![CDATA[
+<transform sourceClass='HS.SDA3.Container' targetClass='HS.SDA3.Container' create='new' language='objectscript' >
+<assign value='"1545555"' property='target.Observations.(1).ObservationCode.Code' action='set' />
+<assign value='"152"' property='target.Observations.(1).ObservationValue' action='set' />
+<assign value='$H' property='target.Observations.(1).ObservationValueTime' action='set' />
+<assign value='"Fréquence cardiaque"' property='target.Observations.(1).ObservationCode.Description' action='set' />
+<assign value='"00022369"' property='target.Patient.MPIID' action='set' />
+</transform>
+]]></Data>
+</XData>
+</Class>
+
+
+<Document name="EnsExportNotes.EnsExportProduction_2022-12-26 15-28-04_036+0.PTD"><ProjectTextDocument name="EnsExportNotes.EnsExportProduction_2022-12-26 15-28-04_036+0" description="Export Notes for export EnsExportProduction_2022-12-26 15-28-04_036+0">
+<![CDATA[<Deployment>
+<Creation>
+<Machine>ACA2C923C16B</Machine>
+<Instance>IRIS</Instance>
+<Namespace>HSTEST</Namespace>
+<SourceProduction>HSTESTPKG.FoundationProduction</SourceProduction>
+<Username>wmahmoudi</Username>
+<UTC>2022-12-26 15:28:23.447</UTC>
+</Creation>
+<Notes>
+</Notes>
+<Contents>
+<ExportProject>EnsExportProduction_2022-12-26 15-28-04_036+0</ExportProject>
+<Item num="1">IPC.XMLFHIRbpl.CLS</Item>
+<Item num="2">IPC.XMLbioToSDA.CLS</Item>
+<Item num="3">Settings:HS.FHIR.DTL.Util.HC.SDA3.FHIR.Process.PTD</Item>
+<Item num="4">Settings:HS.FHIRServer.Interop.Operation.PTD</Item>
+<Item num="5">Settings:SIH.BIO.XML.Fhir.Process.PTD</Item>
+</Contents>
+<ProductionClassInExport></ProductionClassInExport>
+</Deployment>
+
+]]></ProjectTextDocument>
+</Document>
+
+<Document name="Settings:HS.FHIR.DTL.Util.HC.SDA3.FHIR.Process.PTD"><ProjectTextDocument name="Settings:HS.FHIR.DTL.Util.HC.SDA3.FHIR.Process" description="Settings for HS.FHIR.DTL.Util.HC.SDA3.FHIR.Process in Production HSTESTPKG.FoundationProduction">
+<![CDATA[<Item Name="HS.FHIR.DTL.Util.HC.SDA3.FHIR.Process" Category="" ClassName="HS.FHIR.DTL.Util.HC.SDA3.FHIR.Process" PoolSize="1" Enabled="true" Foreground="false" Comment="" LogTraceEvents="false" Schedule=""><Setting Target="Host" Name="FHIREndpoint">/csp/healthshare/hstest/fhir/r4</Setting><Setting Target="Host" Name="FHIRMetadataSet">HL7v40 / FHIR R4 Core Specification</Setting><Setting Target="Host" Name="TargetConfigName">HS.FHIRServer.Interop.Operation</Setting></Item>
+]]></ProjectTextDocument>
+</Document>
+
+<Document name="Settings:HS.FHIRServer.Interop.Operation.PTD"><ProjectTextDocument name="Settings:HS.FHIRServer.Interop.Operation" description="Settings for HS.FHIRServer.Interop.Operation in Production HSTESTPKG.FoundationProduction">
+<![CDATA[<Item Name="HS.FHIRServer.Interop.Operation" Category="" ClassName="HS.FHIRServer.Interop.Operation" PoolSize="1" Enabled="true" Foreground="false" Comment="" LogTraceEvents="false" Schedule=""></Item>
+]]></ProjectTextDocument>
+</Document>
+
+<Document name="Settings:SIH.BIO.XML.Fhir.Process.PTD"><ProjectTextDocument name="Settings:SIH.BIO.XML.Fhir.Process" description="Settings for SIH.BIO.XML.Fhir.Process in Production HSTESTPKG.FoundationProduction">
+<![CDATA[<Item Name="SIH.BIO.XML.Fhir.Process" Category="" ClassName="IPC.XMLFHIRbpl" PoolSize="1" Enabled="true" Foreground="false" Comment="" LogTraceEvents="false" Schedule=""></Item>
+]]></ProjectTextDocument>
+</Document></Export>
